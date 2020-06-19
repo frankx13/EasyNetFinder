@@ -11,11 +11,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
+import android.net.NetworkRequest
+import android.net.NetworkCapabilities
+import androidx.annotation.RequiresApi
+import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,23 +23,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        //SHOW IF NETWORKS ARE AVAILABLE
-//        show_networks_btn.setOnClickListener {
-//            val connectivityManager =
-//                this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//
-//            val networksList = ArrayList<Network>()
-//            val availableNetworks = connectivityManager.allNetworks
-//
-//            if (availableNetworks.isNotEmpty()){
-//                Toast.makeText(this, "There are networks available in your zone", Toast.LENGTH_LONG).show()
-//            } else {
-//                Toast.makeText(this, "No networks available in your zone", Toast.LENGTH_LONG).show()
-//            }
-//
-//            Log.e("ListNetworks", networksList.toString())
-//        }
 
         //SHOW IF WE ARE CONNECTED TO NETWORK
         test_connectivity_btn.setOnClickListener {
@@ -58,84 +40,58 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //GET ALL NETWORKS
         show_networks_btn.setOnClickListener {
-
+            getAvailableNetwoks(this)
         }
 
+        //TODO: GET ACTIVE NETWORK & INFOS
+        //TODO: VPN CASE
+        //TODO: CREATE SHAPES & THEME FOR THE UI
+        //TODO: GET DHCP INFOS
+        //TODO: PING FUNCTIONNALITY
+        //TODO: TRACERT FUNCTIONNALITY
+    }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun getAvailableNetwoks(context: Context): Map<String, Network> {
+        val connManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+        val setNetworkName = HashMap<String, Network>()
+        if (null != connManager) {
 
+            // Set MOBILE network for checking is it existing
+            activateMobileNetwork(context, connManager)
 
-        //Init Connectivity Tester
-//        test_connectivity_btn.setOnClickListener {
-//            val connectivityManager =
-//                this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//
-//            val netAllInfo = connectivityManager.allNetworkInfo
-//            var connectionStatusNumber = 0
-//            var connectionStatusName = ""
-//
-//                if (netAllInfo[0].state == NetworkInfo.State.CONNECTED
-//                    || netAllInfo[0].state == NetworkInfo.State.CONNECTING
-//                    || netAllInfo[1].state == NetworkInfo.State.CONNECTED
-//                    || netAllInfo[1].state == NetworkInfo.State.CONNECTING
-//                ) {
-//                    connectionStatusNumber = 1
-//                    connectionStatusName = "connected"
-//                } else if (netAllInfo[0].state == NetworkInfo.State.DISCONNECTED
-//                    || netAllInfo[0].state == NetworkInfo.State.DISCONNECTING
-//                    || netAllInfo[1].state == NetworkInfo.State.DISCONNECTED
-//                    || netAllInfo[1].state == NetworkInfo.State.DISCONNECTING
-//                ) {
-//                    connectionStatusNumber = 2
-//                    connectionStatusName = "not connected"
-//                } else if (netAllInfo[0].state == NetworkInfo.State.UNKNOWN
-//                    || netAllInfo[1].state == NetworkInfo.State.UNKNOWN){
-//                    connectionStatusNumber = 3
-//                    connectionStatusName = "unknown"
-//                } else if (netAllInfo[0].state == NetworkInfo.State.UNKNOWN
-//                    || netAllInfo[1].state == NetworkInfo.State.UNKNOWN){
-//                    connectionStatusNumber = 4
-//                    connectionStatusName = "suspended"
-//                }
-//
-//            when (connectionStatusNumber) {
-//                1 -> Toast.makeText(this, "The network is " + connectionStatusName, Toast.LENGTH_LONG).show()
-//                2 -> Toast.makeText(this, "The network is " + connectionStatusName, Toast.LENGTH_LONG).show()
-//                3 -> Toast.makeText(this, "The network is " + connectionStatusName, Toast.LENGTH_LONG).show()
-//                4 -> Toast.makeText(this, "The network is " + connectionStatusName, Toast.LENGTH_LONG).show()
-//                else -> Toast.makeText(this, "Device is bugged", Toast.LENGTH_LONG).show()
-//            }
-//        }
+            val networks = connManager.allNetworks
+            if (networks != null) {
+                var nwInfo: NetworkInfo?
+                for (nw in networks) {
+                    nwInfo = connManager.getNetworkInfo(nw)
+                    setNetworkName[nwInfo!!.typeName] = nw
+                }
+            }
+        }
 
+        Log.e("gorteijigire", setNetworkName.toString())
+        Toast.makeText(context, "list of networks : " + setNetworkName.toString(), Toast.LENGTH_LONG).show()
 
+        return setNetworkName
+    }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun activateMobileNetwork(context: Context, connManager: ConnectivityManager) {
+        val builder = NetworkRequest.Builder()
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 
-
-
-        //Init Type of Network
-//        test_type_btn.setOnClickListener {
-//            val connectivityManager =
-//                this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//
-//            var isWifiConn = false
-//            var isMobileConn = false
-//
-//            connectivityManager.allNetworks.forEach { network ->
-//                connectivityManager.getNetworkInfo(network).apply {
-//                    if (type == ConnectivityManager.TYPE_WIFI) {
-//                        isWifiConn = isWifiConn or isConnected
-//                    }
-//                    if (type == ConnectivityManager.TYPE_MOBILE) {
-//                        isMobileConn = isMobileConn or isConnected
-//                    }
-//                }
-//            }
-//            when {
-//                isWifiConn -> Toast.makeText(this, "Device is connected in Wifi", Toast.LENGTH_LONG).show()
-//                isMobileConn -> Toast.makeText(this, "Device is connected in Mobile", Toast.LENGTH_LONG).show()
-//                else -> Toast.makeText(this, "Device is not connected to any Network", Toast.LENGTH_LONG).show()
-//            }
-//        }
+        val networkRequest = builder.build()
+        connManager.requestNetwork(networkRequest, object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                Toast.makeText(context, "MOBILE connect", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

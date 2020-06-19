@@ -12,3 +12,22 @@ URL url = new URL(link);
 
 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 conn.connect();
+
+
+///////////////////DNS
+private static Set<InetAddress> getDnsServers(Context context) throws VpnNetworkException {
+  Set<InetAddress> out = new HashSet<>();
+  ConnectivityManager cm = (ConnectivityManager) context.getSystemService(VpnService.CONNECTIVITY_SERVICE);
+  NetworkInfo activeInfo = cm.getActiveNetworkInfo();
+  if (activeInfo == null)
+    throw new VpnNetworkException("No DNS Server");
+  for (Network nw : cm.getAllNetworks()) {
+    NetworkInfo ni = cm.getNetworkInfo(nw);
+    if (ni == null || !ni.isConnected() || ni.getType() != activeInfo.getType()
+        || ni.getSubtype() != activeInfo.getSubtype())
+      continue;
+    for (InetAddress address : cm.getLinkProperties(nw).getDnsServers())
+      out.add(address);
+  }
+  return out;
+}
