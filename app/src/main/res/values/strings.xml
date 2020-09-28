@@ -3,4 +3,6 @@
     <string name="test_connectivity">Test connectivity</string>
     <string name="test_type_net">Test type</string>
     <string name="show_networks">Show available networks</string>
+    <string name="show_ipv4">Show local host</string>
+    <string name="ipv4_search">Local Host : </string>
 </resources>

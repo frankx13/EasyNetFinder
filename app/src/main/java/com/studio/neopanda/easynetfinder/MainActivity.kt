@@ -2,19 +2,18 @@ package com.studio.neopanda.easynetfinder
 
 import android.annotation.TargetApi
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkInfo
+import android.net.*
 import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import android.net.NetworkRequest
-import android.net.NetworkCapabilities
-import androidx.annotation.RequiresApi
-import kotlin.collections.HashMap
+import java.net.Inet4Address
+import java.net.InetAddress
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +23,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Allow use and fetch of network data on the current device
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+
         //SHOW IF WE ARE CONNECTED TO NETWORK
         test_connectivity_btn.setOnClickListener {
             val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -31,18 +34,28 @@ class MainActivity : AppCompatActivity() {
             if (activeNetwork != null) {
                 // connected to the internet
                 if (activeNetwork.type == ConnectivityManager.TYPE_WIFI) {
-                    Toast.makeText(this, "You're connected to a wifi network !", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "You're connected to a wifi network !", Toast.LENGTH_LONG)
+                        .show()
                 } else if (activeNetwork.type == ConnectivityManager.TYPE_MOBILE) {
-                    Toast.makeText(this, "You're connected to a mobile network !", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        "You're connected to a mobile network !",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             } else {
-                Toast.makeText(this, "You're not connected to any network !", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "You're not connected to any network !", Toast.LENGTH_LONG)
+                    .show()
             }
         }
 
         //GET ALL NETWORKS
         show_networks_btn.setOnClickListener {
             getAvailableNetwoks(this)
+        }
+
+        show_IP_localhost_btn.setOnClickListener {
+            getLocalHostIp()
         }
 
         //TODO: GET ACTIVE NETWORK & INFOS
@@ -75,7 +88,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.e("gorteijigire", setNetworkName.toString())
-        Toast.makeText(context, "list of networks : " + setNetworkName.toString(), Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context,
+            "list of networks : " + setNetworkName.toString(),
+            Toast.LENGTH_LONG
+        ).show()
 
         return setNetworkName
     }
@@ -94,4 +111,16 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    fun getLocalHostIp() {
+        val hostIPv4 = Inet4Address.getLocalHost().hostAddress
+        ipv4_localhost_result.text = hostIPv4
+        ipv4_localhost_result.visibility = View.VISIBLE
+    }
+
+    fun getCurrentIPv4(){
+
+    }
+
+
 }

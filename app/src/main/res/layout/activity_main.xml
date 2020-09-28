@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
     <Button
@@ -11,24 +12,13 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_margin="5dp"
+        android:background="@drawable/btn_action"
         android:drawableEnd="@drawable/ic_wifi_black_24dp"
         android:drawablePadding="10dp"
         android:text="@string/test_connectivity"
         android:textAllCaps="false"
+        android:textColor="@color/colorTextMain"
         android:textSize="24sp" />
-
-<!--    <Button-->
-<!--        android:id="@+id/show__btn"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/test_connectivity_btn"-->
-<!--        android:layout_centerHorizontal="true"-->
-<!--        android:layout_margin="5dp"-->
-<!--        android:drawableEnd="@drawable/ic_type_black_24dp"-->
-<!--        android:drawablePadding="10dp"-->
-<!--        android:text="@string/test_type_net"-->
-<!--        android:textAllCaps="false"-->
-<!--        android:textSize="24sp" />-->
 
     <Button
         android:id="@+id/show_networks_btn"
@@ -37,10 +27,47 @@
         android:layout_below="@id/test_connectivity_btn"
         android:layout_centerHorizontal="true"
         android:layout_margin="5dp"
+        android:background="@drawable/btn_action"
         android:drawableEnd="@drawable/scan_networks_24dp"
         android:drawablePadding="10dp"
         android:text="@string/show_networks"
         android:textAllCaps="false"
+        android:textColor="@color/colorTextMain"
         android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/show_IP_localhost_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/show_networks_btn"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:background="@drawable/btn_action"
+        android:drawableEnd="@drawable/ic_ipv4_black_24dp"
+        android:drawablePadding="10dp"
+        android:text="@string/show_ipv4"
+        android:textAllCaps="false"
+        android:textColor="@color/colorTextMain"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:id="@+id/network_results"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/show_IP_localhost_btn">
+
+        <TextView
+            android:id="@+id/ipv4_localhost_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ipv4_search"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="@color/colorTextMain"
+            android:textSize="22sp"
+            android:visibility="invisible" />
+
+    </LinearLayout>
+
 
 </RelativeLayout>
