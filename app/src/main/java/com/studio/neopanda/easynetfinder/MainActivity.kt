@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.DhcpInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
@@ -40,20 +41,28 @@ class MainActivity : AppCompatActivity() {
             if (typeConnection == 1) {
                 currentIPv4 = getWifiIPAddress()
                 ipv4_current_result.text = getString(R.string.ipv4_current_search) + currentIPv4
+                type_connection_result.text = getString(R.string.type_connection_search) + "Wifi"
+                ipv4_current_result.visibility = View.VISIBLE
             } else if (typeConnection == 2) {
                 currentIPv4 = getMobileIPAddress()
                 ipv4_current_result.text = "Current IP : $currentIPv4"
+                type_connection_result.text = getString(R.string.type_connection_search) + "Mobile"
+                ipv4_current_result.visibility = View.VISIBLE
+            } else {
+                ipv4_current_result.visibility = View.GONE
+                type_connection_result.text =
+                    getString(R.string.type_connection_search) + "Disconnected"
             }
 
-            ipv4_current_result.visibility = View.VISIBLE
+            type_connection_result.visibility = View.VISIBLE
+
+            getDHCPInfo()
         }
 
-        //TODO: GET ACTIVE NETWORK & INFOS OK
         //TODO: VPN CASE
         //TODO: CREATE SHAPES FOR THE UI
-        //TODO: GET DHCP INFOS
-        //TODO: PING FUNCTIONNALITY
-        //TODO: TRACERT FUNCTIONNALITY
+        //TODO: PING FUNCTIONALITY
+        //TODO: TRACERT FUNCTIONALITY
     }
 
     fun checkTypeConnection(): Int {
@@ -117,8 +126,51 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (ex: Exception) {
         }
-        // for now eat exceptions
+        //TODO: Handle exceptions
         return "No way!"
     }
 
+    fun getDHCPInfo() {
+        val sDns1: String
+        val sDns2: String
+        val sGateway: String
+        val sIpaddress: String
+        val sLeaseduration: String
+        val sNetmask: String
+        val sServeraddress: String
+        val d: DhcpInfo
+        val wifii: WifiManager =
+            applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        d = wifii.dhcpInfo
+        sDns1 = intToIp(d.dns1)
+        sDns2 = intToIp(d.dns2)
+        sGateway = intToIp(d.gateway)
+        sIpaddress = intToIp(d.ipAddress)
+        sLeaseduration = d.leaseDuration.toString()
+        sNetmask = intToIp(d.netmask)
+        sServeraddress = intToIp(d.serverAddress)
+
+        dns_1_result.text = sDns1
+        dns_1_result.visibility = View.VISIBLE
+        dns_2_result.text = sDns2
+        dns_2_result.visibility = View.VISIBLE
+        default_gateway_result.text = sGateway
+        default_gateway_result.visibility = View.VISIBLE
+        ip_address_result.text = sIpaddress
+        ip_address_result.visibility = View.VISIBLE
+        lease_time_result.text = sLeaseduration
+        lease_time_result.visibility = View.VISIBLE
+        subnet_mask_result.text = sNetmask
+        subnet_mask_result.visibility = View.VISIBLE
+        serveur_address_result.text = sServeraddress
+        serveur_address_result.visibility = View.VISIBLE
+    }
+
+    fun intToIp(i: Int): String {
+        return (i and 0xFF).toString() + "." +
+                (i shr 8 and 0xFF) + "." +
+                (i shr 16 and 0xFF) + "." +
+                (i shr 24 and 0xFF)
+    }
 }

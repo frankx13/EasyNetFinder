@@ -4,4 +4,5 @@
     <string name="ipv4_localhost_search">Local Host : </string>
     <string name="ipv4_current_search">Current IPV4 : </string>
     <string name="ipv4_looback_search">Loopback Address :</string>
+    <string name="type_connection_search">Network Type :</string>
 </resources>
