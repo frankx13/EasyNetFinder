@@ -18,6 +18,7 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface.getNetworkInterfaces
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         show_net_inf_btn.setOnClickListener {
             isNetInfoOn != isNetInfoOn
+            network_results.visibility =
             checkTypeConnection()
             getLocalHostIp()
             getLoopbackAddress()
@@ -182,9 +184,22 @@ class MainActivity : AppCompatActivity() {
                 (i shr 24 and 0xFF)
     }
 
-    fun pingIP(ip: Int) {
-        val ipAddress = "192.168.1.10"
+    fun pingIP(ip: Int, numberIteration: Int) {
+//        val ipAddress = ip.toString()
+        val ipAddress = "192.168.232.2"
         val inet = InetAddress.getByName(ipAddress)
         val reachable = inet.isReachable(5000)
+        var packetsLost = 0
+        var packetsReceived = 0
+
+
+        for (i in 0 until numberIteration){
+            if (!reachable){
+                packetsLost += 1
+            } else {
+                packetsReceived += 1
+            }
+        }
+
     }
 }

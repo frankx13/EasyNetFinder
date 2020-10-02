@@ -5,4 +5,9 @@
     <color name="colorAccent">#7BD4D3</color>
     <color name="colorBackground">#3DA8DB</color>
     <color name="colorTextMain">#FFF</color>
+    <color name="colorTextHint">#5F8082</color>
+    <color name="colorShadow">#2E4F4F</color>
+    <color name="colorAccept">#4AFF4E</color>
+    <color name="colorExit">#EB263C</color>
+
 </resources>

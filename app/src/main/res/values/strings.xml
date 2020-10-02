@@ -5,4 +5,9 @@
     <string name="ipv4_current_search">Current IPV4 : </string>
     <string name="ipv4_looback_search">Loopback Address :</string>
     <string name="type_connection_search">Network Type :</string>
+    <string name="display_ping">Ping an address</string>
+    <string name="enter_an_ip_address">Enter an IP address</string>
+    <string name="go">GO</string>
+    <string name="avoid">STOP</string>
+    <string name="use_parameters">Use parameters </string>
 </resources>
