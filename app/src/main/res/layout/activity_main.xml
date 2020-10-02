@@ -22,142 +22,142 @@
 
     <LinearLayout
         android:id="@+id/network_results"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/show_net_inf_btn"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/ipv4_localhost_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ipv4_localhost_search"
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
             android:layout_margin="3dp"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/ipv4_loopback_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ipv4_looback_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/ipv4_current_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ipv4_current_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/type_connection_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/dns_1_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/dns_2_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/default_gateway_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/ip_address_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/lease_time_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/subnet_mask_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/serveur_address_result"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/type_connection_search"
             android:textAlignment="center"
             android:layout_margin="3dp"
             android:textAllCaps="false"
             android:textColor="@color/colorTextMain"
-            android:textSize="22sp"
-            android:visibility="invisible" />
+            android:textSize="18sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

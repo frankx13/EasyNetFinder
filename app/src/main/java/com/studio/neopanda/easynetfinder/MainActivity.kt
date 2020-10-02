@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.Inet4Address
+import java.net.InetAddress
 import java.net.NetworkInterface.getNetworkInterfaces
 import java.util.*
 
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private var typeConnection: Int = 0
     private var currentIPv4: String = ""
+    private var isNetInfoOn: Boolean = false
 
     @SuppressLint("SetTextI18n")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         StrictMode.setThreadPolicy(policy)
 
         show_net_inf_btn.setOnClickListener {
+            isNetInfoOn != isNetInfoOn
             checkTypeConnection()
             getLocalHostIp()
             getLoopbackAddress()
@@ -130,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         return "No way!"
     }
 
+    @SuppressLint("SetTextI18n")
     fun getDHCPInfo() {
         val sDns1: String
         val sDns2: String
@@ -143,17 +147,21 @@ class MainActivity : AppCompatActivity() {
             applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         d = wifii.dhcpInfo
-        sDns1 = intToIp(d.dns1)
-        sDns2 = intToIp(d.dns2)
-        sGateway = intToIp(d.gateway)
-        sIpaddress = intToIp(d.ipAddress)
-        sLeaseduration = d.leaseDuration.toString()
-        sNetmask = intToIp(d.netmask)
-        sServeraddress = intToIp(d.serverAddress)
+        sDns1 = "DNS1: " + intToIp(d.dns1)
+        sDns2 = "DNS2: " + intToIp(d.dns2)
+        sGateway = "Gateway: " + intToIp(d.gateway)
+        sIpaddress = "IPV4: " + intToIp(d.ipAddress)
+        sLeaseduration = "Lease: " + d.leaseDuration.toString()
+        sNetmask = "Netmask: " + intToIp(d.netmask)
+        sServeraddress = "Srv address: " + intToIp(d.serverAddress)
 
         dns_1_result.text = sDns1
         dns_1_result.visibility = View.VISIBLE
-        dns_2_result.text = sDns2
+        if (sDns2 != "DNS2: 0.0.0.0") {
+            dns_2_result.text = sDns2
+        } else {
+            dns_2_result.text = "DNS2: None"
+        }
         dns_2_result.visibility = View.VISIBLE
         default_gateway_result.text = sGateway
         default_gateway_result.visibility = View.VISIBLE
@@ -172,5 +180,11 @@ class MainActivity : AppCompatActivity() {
                 (i shr 8 and 0xFF) + "." +
                 (i shr 16 and 0xFF) + "." +
                 (i shr 24 and 0xFF)
+    }
+
+    fun pingIP(ip: Int) {
+        val ipAddress = "192.168.1.10"
+        val inet = InetAddress.getByName(ipAddress)
+        val reachable = inet.isReachable(5000)
     }
 }
