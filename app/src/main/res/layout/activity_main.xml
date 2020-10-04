@@ -189,7 +189,8 @@
         android:textAllCaps="false"
         android:textColor="@color/colorTextMain"
         android:textColorHint="@color/colorTextHint"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:inputType="date" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/ping_parameters"
