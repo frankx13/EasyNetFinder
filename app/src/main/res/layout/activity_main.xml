@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
@@ -186,11 +186,12 @@
         android:layout_margin="5dp"
         android:background="@drawable/edit_text_theme"
         android:hint="@string/enter_an_ip_address"
+        android:inputType="date"
         android:textAllCaps="false"
         android:textColor="@color/colorTextMain"
         android:textColorHint="@color/colorTextHint"
         android:textSize="24sp"
-        android:inputType="date" />
+        android:visibility="gone" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/ping_parameters"
@@ -199,9 +200,10 @@
         android:layout_below="@id/ping_input"
         android:layout_centerHorizontal="true"
         android:text="@string/use_parameters"
-        app:switchPadding="10dp"
+        android:textColor="@color/colorTextMain"
         android:textSize="18sp"
-        android:textColor="@color/colorTextMain"/>
+        android:visibility="gone"
+        app:switchPadding="10dp" />
 
     <LinearLayout
         android:id="@+id/ping_results"
@@ -209,10 +211,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/ping_parameters"
         android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <Button
-            android:id="@+id/launch_ping"
+            android:id="@+id/exit_ping"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
@@ -223,7 +226,7 @@
             android:textSize="26sp" />
 
         <Button
-            android:id="@+id/exit_ping"
+            android:id="@+id/launch_ping"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"

@@ -18,7 +18,6 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface.getNetworkInterfaces
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     private var typeConnection: Int = 0
     private var currentIPv4: String = ""
     private var isNetInfoOn: Boolean = false
+    private var isPingFuncOn: Boolean = false
+    private var inputIPv4: String = ""
 
     @SuppressLint("SetTextI18n")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -37,36 +38,86 @@ class MainActivity : AppCompatActivity() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
+
+
         show_net_inf_btn.setOnClickListener {
-            isNetInfoOn != isNetInfoOn
-            network_results.visibility =
-            checkTypeConnection()
-            getLocalHostIp()
-            getLoopbackAddress()
-            if (typeConnection == 1) {
-                currentIPv4 = getWifiIPAddress()
-                ipv4_current_result.text = getString(R.string.ipv4_current_search) + currentIPv4
-                type_connection_result.text = getString(R.string.type_connection_search) + "Wifi"
-                ipv4_current_result.visibility = View.VISIBLE
-            } else if (typeConnection == 2) {
-                currentIPv4 = getMobileIPAddress()
-                ipv4_current_result.text = "Current IP : $currentIPv4"
-                type_connection_result.text = getString(R.string.type_connection_search) + "Mobile"
-                ipv4_current_result.visibility = View.VISIBLE
+            isNetInfoOn = !isNetInfoOn
+            if (isNetInfoOn) {
+                network_results.visibility = View.VISIBLE
+                checkTypeConnection()
+                getLocalHostIp()
+                getLoopbackAddress()
+                if (typeConnection == 1) {
+                    currentIPv4 = getWifiIPAddress()
+                    ipv4_current_result.text = getString(R.string.ipv4_current_search) + currentIPv4
+                    type_connection_result.text =
+                        getString(R.string.type_connection_search) + "Wifi"
+                    ipv4_current_result.visibility = View.VISIBLE
+                } else if (typeConnection == 2) {
+                    currentIPv4 = getMobileIPAddress()
+                    ipv4_current_result.text = "Current IP : $currentIPv4"
+                    type_connection_result.text =
+                        getString(R.string.type_connection_search) + "Mobile"
+                    ipv4_current_result.visibility = View.VISIBLE
+                } else {
+                    ipv4_current_result.visibility = View.GONE
+                    type_connection_result.text =
+                        getString(R.string.type_connection_search) + "Disconnected"
+                }
+
+                type_connection_result.visibility = View.VISIBLE
+
+                getDHCPInfo()
             } else {
-                ipv4_current_result.visibility = View.GONE
-                type_connection_result.text =
-                    getString(R.string.type_connection_search) + "Disconnected"
+                network_results.visibility = View.GONE
             }
+        }
 
-            type_connection_result.visibility = View.VISIBLE
-
-            getDHCPInfo()
+        ping_ip_btn.setOnClickListener {
+            isPingFuncOn = !isPingFuncOn
+            if (isPingFuncOn) {
+                ping_input.visibility = View.VISIBLE
+                ping_parameters.visibility = View.VISIBLE
+                ping_results.visibility = View.VISIBLE
+                launch_ping.setOnClickListener {
+                    if (ping_input.text.toString() != "") {
+                        val resultPing: Int
+                        val iterationPing = 4
+                        val lostPing: Int
+                        val receivedPing: Int
+                        inputIPv4 = ping_input.text.toString()
+                        resultPing = pingIP(inputIPv4, iterationPing)
+                        receivedPing = iterationPing - resultPing
+                        lostPing = iterationPing - receivedPing
+                        Toast.makeText(
+                            this,
+                            "$iterationPing packets sent, $receivedPing received, $lostPing",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "You need to provide an IPv4 to ping !",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                exit_ping.setOnClickListener {
+                    ping_input.visibility = View.GONE
+                    ping_parameters.visibility = View.GONE
+                    ping_results.visibility = View.GONE
+                }
+            } else {
+                isPingFuncOn = false
+                ping_input.visibility = View.GONE
+                ping_parameters.visibility = View.GONE
+                ping_results.visibility = View.GONE
+            }
         }
 
         //TODO: VPN CASE
         //TODO: CREATE SHAPES FOR THE UI
-        //TODO: PING FUNCTIONALITY
+        //TODO: IMPROVE PING FUNCTIONALITY
         //TODO: TRACERT FUNCTIONALITY
     }
 
@@ -184,22 +235,19 @@ class MainActivity : AppCompatActivity() {
                 (i shr 24 and 0xFF)
     }
 
-    fun pingIP(ip: Int, numberIteration: Int) {
-//        val ipAddress = ip.toString()
-        val ipAddress = "192.168.232.2"
+    fun pingIP(ipInput: String, numberIteration: Int): Int {
+        val ipAddress = ipInput
         val inet = InetAddress.getByName(ipAddress)
         val reachable = inet.isReachable(5000)
         var packetsLost = 0
         var packetsReceived = 0
 
 
-        for (i in 0 until numberIteration){
-            if (!reachable){
+        for (i in 0 until numberIteration) {
+            if (!reachable) {
                 packetsLost += 1
-            } else {
-                packetsReceived += 1
             }
         }
-
+        return packetsLost
     }
 }
