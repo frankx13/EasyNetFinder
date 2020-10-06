@@ -18,6 +18,7 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface.getNetworkInterfaces
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -79,19 +80,44 @@ class MainActivity : AppCompatActivity() {
                 ping_input.visibility = View.VISIBLE
                 ping_parameters.visibility = View.VISIBLE
                 ping_results.visibility = View.VISIBLE
+
+                ping_parameters.setOnClickListener {
+                    if (ping_parameters.isChecked) {
+                        parameter_ping_ip.visibility = View.VISIBLE
+                        parameter_ping_name.visibility = View.VISIBLE
+                        parameter_number_iterations.visibility = View.VISIBLE
+                    } else {
+                        parameter_ping_ip.visibility = View.GONE
+                        parameter_ping_name.visibility = View.GONE
+                        parameter_number_iterations.visibility = View.GONE
+                    }
+                }
+
                 launch_ping.setOnClickListener {
                     if (ping_input.text.toString() != "") {
                         val resultPing: Int
-                        val iterationPing = 4
+                        var iterationPing = 4
                         val lostPing: Int
                         val receivedPing: Int
+                        var packetsFlux: ArrayList<Int>
+
+                        if (ping_parameters.isChecked) {
+                            val iterationCustom: Int =
+                                parameter_number_iterations.text.toString().toInt()
+                            if (parameter_number_iterations.text.toString() != "") {
+                                iterationPing = iterationCustom
+                            } else {
+                                iterationPing = 4
+                            }
+                        }
+                        
                         inputIPv4 = ping_input.text.toString()
-                        resultPing = pingIP(inputIPv4, iterationPing)
-                        receivedPing = iterationPing - resultPing
-                        lostPing = iterationPing - receivedPing
+                        packetsFlux = pingIP(inputIPv4, iterationPing)
+                        receivedPing = packetsFlux[0]
+                        lostPing = packetsFlux[1]
                         Toast.makeText(
                             this,
-                            "$iterationPing packets sent, $receivedPing received, $lostPing",
+                            "$iterationPing packets sent, $receivedPing received, $lostPing lost",
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
@@ -106,12 +132,18 @@ class MainActivity : AppCompatActivity() {
                     ping_input.visibility = View.GONE
                     ping_parameters.visibility = View.GONE
                     ping_results.visibility = View.GONE
+                    parameter_ping_ip.visibility = View.GONE
+                    parameter_ping_name.visibility = View.GONE
+                    parameter_number_iterations.visibility = View.GONE
                 }
             } else {
                 isPingFuncOn = false
                 ping_input.visibility = View.GONE
                 ping_parameters.visibility = View.GONE
                 ping_results.visibility = View.GONE
+                parameter_ping_ip.visibility = View.GONE
+                parameter_ping_name.visibility = View.GONE
+                parameter_number_iterations.visibility = View.GONE
             }
         }
 
@@ -235,12 +267,31 @@ class MainActivity : AppCompatActivity() {
                 (i shr 24 and 0xFF)
     }
 
-    fun pingIP(ipInput: String, numberIteration: Int): Int {
-        val ipAddress = ipInput
-        val inet = InetAddress.getByName(ipAddress)
+    fun pingIP(ipInput: String, numberIteration: Int): ArrayList<Int> {
+        val inet = InetAddress.getByName(ipInput)
         val reachable = inet.isReachable(5000)
         var packetsLost = 0
         var packetsReceived = 0
+        var packetsFlux = arrayListOf<Int>()
+
+
+        for (i in 0 until numberIteration) {
+            if (!reachable) {
+                packetsLost += 1
+            } else {
+                packetsReceived += 1
+            }
+        }
+        packetsFlux.add(0, packetsReceived)
+        packetsFlux.add(1, packetsLost)
+
+        return packetsFlux
+    }
+
+    fun pingDomainName(domainName: String, numberIteration: Int): Int {
+        val inet = InetAddress.getByName(domainName)
+        val reachable = inet.isReachable(5000)
+        var packetsLost = 0
 
 
         for (i in 0 until numberIteration) {

@@ -10,4 +10,7 @@
     <string name="go">GO</string>
     <string name="avoid">STOP</string>
     <string name="use_parameters">Use parameters </string>
+    <string name="by_ip">By IP</string>
+    <string name="by_name">By Name</string>
+    <string name="number_iterations">Number of iteration</string>
 </resources>

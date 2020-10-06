@@ -205,11 +205,47 @@
         android:visibility="gone"
         app:switchPadding="10dp" />
 
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/parameter_ping_ip"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:visibility="gone"
+        android:layout_below="@id/ping_parameters"
+        android:text="@string/by_ip" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/parameter_ping_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/parameter_ping_ip"
+        android:checked="false"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:text="@string/by_name" />
+
+    <EditText
+        android:id="@+id/parameter_number_iterations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/parameter_ping_name"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:background="@drawable/edit_text_theme"
+        android:hint="@string/number_iterations"
+        android:inputType="number"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        android:textColor="@color/colorTextMain"
+        android:textColorHint="@color/colorTextHint"
+        android:textSize="18sp" />
+
     <LinearLayout
         android:id="@+id/ping_results"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/ping_parameters"
+        android:layout_below="@id/parameter_number_iterations"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
         android:visibility="gone">
