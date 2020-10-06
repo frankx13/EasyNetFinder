@@ -274,4 +274,19 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/scan_wifi_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ping_results"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:background="@drawable/btn_action"
+        android:drawableEnd="@drawable/ic_scan_wifi_black_24dp"
+        android:drawablePadding="10dp"
+        android:text="@string/scan_wifis"
+        android:textAllCaps="false"
+        android:textColor="@color/colorTextMain"
+        android:textSize="24sp" />
+
 </RelativeLayout>

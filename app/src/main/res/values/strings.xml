@@ -13,4 +13,7 @@
     <string name="by_ip">By IP</string>
     <string name="by_name">By Name</string>
     <string name="number_iterations">Number of iteration</string>
+    <string name="scan_wifis">Scan wifi networks</string>
+    <string name="title_activity_scan_wifi">ScanWifiActivity</string>
+    <string name="scan_wifi">Scan WiFi</string>
 </resources>

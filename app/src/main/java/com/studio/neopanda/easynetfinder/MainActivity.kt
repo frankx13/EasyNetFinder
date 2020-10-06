@@ -3,6 +3,7 @@ package com.studio.neopanda.easynetfinder
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.DhcpInfo
 import android.net.wifi.WifiManager
@@ -38,8 +39,6 @@ class MainActivity : AppCompatActivity() {
         //Allow use and fetch of network data on the current device
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-
-
 
         show_net_inf_btn.setOnClickListener {
             isNetInfoOn = !isNetInfoOn
@@ -95,7 +94,6 @@ class MainActivity : AppCompatActivity() {
 
                 launch_ping.setOnClickListener {
                     if (ping_input.text.toString() != "") {
-                        val resultPing: Int
                         var iterationPing = 4
                         val lostPing: Int
                         val receivedPing: Int
@@ -147,13 +145,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        scan_wifi_btn.setOnClickListener {
+            toScanActivity()
+        }
+
         //TODO: VPN CASE
-        //TODO: CREATE SHAPES FOR THE UI
-        //TODO: IMPROVE PING FUNCTIONALITY
         //TODO: TRACERT FUNCTIONALITY
+        //TODO: SCAN THE WIFI NETWORK
     }
 
-    fun checkTypeConnection(): Int {
+    private fun checkTypeConnection(): Int {
         //SHOW IF WE ARE CONNECTED TO NETWORK
         val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = cm.activeNetworkInfo
@@ -194,14 +195,14 @@ class MainActivity : AppCompatActivity() {
         ipv4_loopback_result.visibility = View.VISIBLE
     }
 
-    fun getWifiIPAddress(): String {
+    private fun getWifiIPAddress(): String {
         val wifiMgr = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val wifiInfo = wifiMgr.connectionInfo
         val ip = wifiInfo.ipAddress
         return formatIpAddress(ip)
     }
 
-    fun getMobileIPAddress(): String {
+    private fun getMobileIPAddress(): String {
         try {
             val interfaces = Collections.list(getNetworkInterfaces())
             for (intf in interfaces) {
@@ -260,19 +261,19 @@ class MainActivity : AppCompatActivity() {
         serveur_address_result.visibility = View.VISIBLE
     }
 
-    fun intToIp(i: Int): String {
+    private fun intToIp(i: Int): String {
         return (i and 0xFF).toString() + "." +
                 (i shr 8 and 0xFF) + "." +
                 (i shr 16 and 0xFF) + "." +
                 (i shr 24 and 0xFF)
     }
 
-    fun pingIP(ipInput: String, numberIteration: Int): ArrayList<Int> {
+    private fun pingIP(ipInput: String, numberIteration: Int): ArrayList<Int> {
         val inet = InetAddress.getByName(ipInput)
         val reachable = inet.isReachable(5000)
         var packetsLost = 0
         var packetsReceived = 0
-        var packetsFlux = arrayListOf<Int>()
+        val packetsFlux = arrayListOf<Int>()
 
 
         for (i in 0 until numberIteration) {
@@ -288,17 +289,29 @@ class MainActivity : AppCompatActivity() {
         return packetsFlux
     }
 
-    fun pingDomainName(domainName: String, numberIteration: Int): Int {
+    fun pingDomainName(domainName: String, numberIteration: Int): ArrayList<Int> {
         val inet = InetAddress.getByName(domainName)
         val reachable = inet.isReachable(5000)
         var packetsLost = 0
+        var packetsReceived = 0
+        val packetsFlux = arrayListOf<Int>()
 
 
         for (i in 0 until numberIteration) {
             if (!reachable) {
                 packetsLost += 1
+            } else {
+                packetsReceived += 1
             }
         }
-        return packetsLost
+        packetsFlux.add(0, packetsReceived)
+        packetsFlux.add(1, packetsLost)
+
+        return packetsFlux
+    }
+
+    private fun toScanActivity() {
+        val intent = Intent(this, ScanWifiActivity::class.java)
+        startActivity(intent)
     }
 }
