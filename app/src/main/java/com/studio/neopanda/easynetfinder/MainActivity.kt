@@ -19,7 +19,6 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface.getNetworkInterfaces
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -108,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                                 iterationPing = 4
                             }
                         }
-                        
+
                         inputIPv4 = ping_input.text.toString()
                         packetsFlux = pingIP(inputIPv4, iterationPing)
                         receivedPing = packetsFlux[0]
@@ -152,6 +151,7 @@ class MainActivity : AppCompatActivity() {
         //TODO: VPN CASE
         //TODO: TRACERT FUNCTIONALITY
         //TODO: SCAN THE WIFI NETWORK
+        //TODO: IMPLEMENT NETWORK THREAD
     }
 
     private fun checkTypeConnection(): Int {
