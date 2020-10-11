@@ -2,15 +2,20 @@ package com.studio.neopanda.easynetfinder
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.DhcpInfo
+import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.StrictMode
 import android.text.format.Formatter.formatIpAddress
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -29,11 +34,23 @@ class MainActivity : AppCompatActivity() {
     private var isPingFuncOn: Boolean = false
     private var inputIPv4: String = ""
 
+    var resultList = ArrayList<ScanResult>()
+    lateinit var wifiManager: WifiManager
+
+    private val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(contxt: Context?, intent: Intent?) {
+            resultList = wifiManager.scanResults as ArrayList<ScanResult>
+            Log.d("TESTING", "onReceive Called")
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        wifiManager = this.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         //Allow use and fetch of network data on the current device
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
@@ -46,22 +63,27 @@ class MainActivity : AppCompatActivity() {
                 checkTypeConnection()
                 getLocalHostIp()
                 getLoopbackAddress()
-                if (typeConnection == 1) {
-                    currentIPv4 = getWifiIPAddress()
-                    ipv4_current_result.text = getString(R.string.ipv4_current_search) + currentIPv4
-                    type_connection_result.text =
-                        getString(R.string.type_connection_search) + "Wifi"
-                    ipv4_current_result.visibility = View.VISIBLE
-                } else if (typeConnection == 2) {
-                    currentIPv4 = getMobileIPAddress()
-                    ipv4_current_result.text = "Current IP : $currentIPv4"
-                    type_connection_result.text =
-                        getString(R.string.type_connection_search) + "Mobile"
-                    ipv4_current_result.visibility = View.VISIBLE
-                } else {
-                    ipv4_current_result.visibility = View.GONE
-                    type_connection_result.text =
-                        getString(R.string.type_connection_search) + "Disconnected"
+                when (typeConnection) {
+                    1 -> {
+                        currentIPv4 = getWifiIPAddress()
+                        ipv4_current_result.text =
+                            getString(R.string.ipv4_current_search) + currentIPv4
+                        type_connection_result.text =
+                            getString(R.string.type_connection_search) + "Wifi"
+                        ipv4_current_result.visibility = View.VISIBLE
+                    }
+                    2 -> {
+                        currentIPv4 = getMobileIPAddress()
+                        ipv4_current_result.text = "Current IP : $currentIPv4"
+                        type_connection_result.text =
+                            getString(R.string.type_connection_search) + "Mobile"
+                        ipv4_current_result.visibility = View.VISIBLE
+                    }
+                    else -> {
+                        ipv4_current_result.visibility = View.GONE
+                        type_connection_result.text =
+                            getString(R.string.type_connection_search) + "Disconnected"
+                    }
                 }
 
                 type_connection_result.visibility = View.VISIBLE
@@ -145,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         scan_wifi_btn.setOnClickListener {
-            toScanActivity()
+            wifiScan()
         }
 
         //TODO: VPN CASE
@@ -310,8 +332,24 @@ class MainActivity : AppCompatActivity() {
         return packetsFlux
     }
 
-    private fun toScanActivity() {
-        val intent = Intent(this, ScanWifiActivity::class.java)
-        startActivity(intent)
+    private fun wifiScan() {
+        startScanning()
+        Log.e("List Networks", resultList.toString())
+        Toast.makeText(this, "There are ${resultList.size} networks available", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    private fun startScanning() {
+        registerReceiver(broadcastReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+
+        Handler().postDelayed({
+            stopScanning()
+        }, 10000)
+    }
+
+    private fun stopScanning() {
+        unregisterReceiver(broadcastReceiver)
+
+        Log.d("TESTING", "Unregistering")
     }
 }
