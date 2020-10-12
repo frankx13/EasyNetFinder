@@ -2,7 +2,6 @@ package com.studio.neopanda.easynetfinder
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +11,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
+import android.text.InputType
 import android.text.format.Formatter.formatIpAddress
 import android.view.View
 import android.widget.Toast
@@ -35,6 +35,8 @@ class MainActivity : AppCompatActivity() {
     private var inputIPv4: String = ""
     private val FINE_LOCATION_REQUEST = 101
     private val CAMERA_REQUEST = 102
+    private var isNameOrIP = true
+    private var isIterationValid = true
 
     @SuppressLint("SetTextI18n")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -46,123 +48,9 @@ class MainActivity : AppCompatActivity() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        show_net_inf_btn.setOnClickListener {
-            isNetInfoOn = !isNetInfoOn
-            if (isNetInfoOn) {
-                network_results.visibility = View.VISIBLE
-                checkTypeConnection()
-                getLocalHostIp()
-                getLoopbackAddress()
-                when (typeConnection) {
-                    1 -> {
-                        currentIPv4 = getWifiIPAddress()
-                        ipv4_current_result.text =
-                            getString(R.string.ipv4_current_search) + currentIPv4
-                        type_connection_result.text =
-                            getString(R.string.type_connection_search) + "Wifi"
-                        ipv4_current_result.visibility = View.VISIBLE
-                    }
-                    2 -> {
-                        currentIPv4 = getMobileIPAddress()
-                        ipv4_current_result.text = "Current IP : $currentIPv4"
-                        type_connection_result.text =
-                            getString(R.string.type_connection_search) + "Mobile"
-                        ipv4_current_result.visibility = View.VISIBLE
-                    }
-                    else -> {
-                        ipv4_current_result.visibility = View.GONE
-                        type_connection_result.text =
-                            getString(R.string.type_connection_search) + "Disconnected"
-                    }
-                }
-
-                type_connection_result.visibility = View.VISIBLE
-
-                getDHCPInfo()
-            } else {
-                network_results.visibility = View.GONE
-            }
-        }
-
-        ping_ip_btn.setOnClickListener {
-            isPingFuncOn = !isPingFuncOn
-            if (isPingFuncOn) {
-                ping_input.visibility = View.VISIBLE
-                ping_parameters.visibility = View.VISIBLE
-                ping_results.visibility = View.VISIBLE
-
-                ping_parameters.setOnClickListener {
-                    if (ping_parameters.isChecked) {
-                        parameter_ping_ip.visibility = View.VISIBLE
-                        parameter_ping_name.visibility = View.VISIBLE
-                        parameter_number_iterations.visibility = View.VISIBLE
-                    } else {
-                        parameter_ping_ip.visibility = View.GONE
-                        parameter_ping_name.visibility = View.GONE
-                        parameter_number_iterations.visibility = View.GONE
-                    }
-                }
-
-                launch_ping.setOnClickListener {
-                    if (ping_input.text.toString() != "") {
-                        var iterationPing = 4
-                        val lostPing: Int
-                        val receivedPing: Int
-                        var packetsFlux: ArrayList<Int>
-
-                        if (ping_parameters.isChecked) {
-                            val iterationCustom: Int =
-                                parameter_number_iterations.text.toString().toInt()
-                            if (parameter_number_iterations.text.toString() != "") {
-                                iterationPing = iterationCustom
-                            } else {
-                                iterationPing = 4
-                            }
-                        }
-
-                        inputIPv4 = ping_input.text.toString()
-                        packetsFlux = pingIP(inputIPv4, iterationPing)
-                        receivedPing = packetsFlux[0]
-                        lostPing = packetsFlux[1]
-                        Toast.makeText(
-                            this,
-                            "$iterationPing packets sent, $receivedPing received, $lostPing lost",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            this,
-                            "You need to provide an IPv4 to ping !",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-                exit_ping.setOnClickListener {
-                    ping_input.visibility = View.GONE
-                    ping_parameters.visibility = View.GONE
-                    ping_results.visibility = View.GONE
-                    parameter_ping_ip.visibility = View.GONE
-                    parameter_ping_name.visibility = View.GONE
-                    parameter_number_iterations.visibility = View.GONE
-                }
-            } else {
-                isPingFuncOn = false
-                ping_input.visibility = View.GONE
-                ping_parameters.visibility = View.GONE
-                ping_results.visibility = View.GONE
-                parameter_ping_ip.visibility = View.GONE
-                parameter_ping_name.visibility = View.GONE
-                parameter_number_iterations.visibility = View.GONE
-            }
-        }
-
-        scan_wifi_btn.setOnClickListener {
-            checkForPermissions(
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                "location",
-                FINE_LOCATION_REQUEST
-            )
-        }
+        showNetInfosClick()
+        pingIPClick()
+        wifiScanClick()
 
         //TODO: VPN CASE
         //TODO: TRACERT FUNCTIONALITY
@@ -233,6 +121,47 @@ class MainActivity : AppCompatActivity() {
 
         val dialog = builder.create()
         dialog.show()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showNetInfosClick() {
+        show_net_inf_btn.setOnClickListener {
+            isNetInfoOn = !isNetInfoOn
+            if (isNetInfoOn) {
+                network_results.visibility = View.VISIBLE
+                checkTypeConnection()
+                getLocalHostIp()
+                getLoopbackAddress()
+                when (typeConnection) {
+                    1 -> {
+                        currentIPv4 = getWifiIPAddress()
+                        ipv4_current_result.text =
+                            getString(R.string.ipv4_current_search) + currentIPv4
+                        type_connection_result.text =
+                            getString(R.string.type_connection_search) + "Wifi"
+                        ipv4_current_result.visibility = View.VISIBLE
+                    }
+                    2 -> {
+                        currentIPv4 = getMobileIPAddress()
+                        ipv4_current_result.text = "Current IP : $currentIPv4"
+                        type_connection_result.text =
+                            getString(R.string.type_connection_search) + "Mobile"
+                        ipv4_current_result.visibility = View.VISIBLE
+                    }
+                    else -> {
+                        ipv4_current_result.visibility = View.GONE
+                        type_connection_result.text =
+                            getString(R.string.type_connection_search) + "Disconnected"
+                    }
+                }
+
+                type_connection_result.visibility = View.VISIBLE
+
+                getDHCPInfo()
+            } else {
+                network_results.visibility = View.GONE
+            }
+        }
     }
 
     private fun checkTypeConnection(): Int {
@@ -370,29 +299,139 @@ class MainActivity : AppCompatActivity() {
         return packetsFlux
     }
 
-    fun pingDomainName(domainName: String, numberIteration: Int): ArrayList<Int> {
-        val inet = InetAddress.getByName(domainName)
-        val reachable = inet.isReachable(5000)
-        var packetsLost = 0
-        var packetsReceived = 0
-        val packetsFlux = arrayListOf<Int>()
-
-
-        for (i in 0 until numberIteration) {
-            if (!reachable) {
-                packetsLost += 1
-            } else {
-                packetsReceived += 1
-            }
+    private fun wifiScanClick() {
+        scan_wifi_btn.setOnClickListener {
+            checkForPermissions(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                "location",
+                FINE_LOCATION_REQUEST
+            )
         }
-        packetsFlux.add(0, packetsReceived)
-        packetsFlux.add(1, packetsLost)
-
-        return packetsFlux
     }
 
     private fun wifiScan() {
         val intent = Intent(this, WifiScannerActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun pingIPClick() {
+        ping_ip_btn.setOnClickListener {
+            isPingFuncOn = !isPingFuncOn
+            if (isPingFuncOn) {
+                ping_input.visibility = View.VISIBLE
+                ping_parameters.visibility = View.VISIBLE
+                ping_results.visibility = View.VISIBLE
+
+                pingParametersToggle()
+
+                launch_ping.setOnClickListener {
+                    if (ping_input.text.toString() != "") {
+                        var iterationPing = 4
+                        val lostPing: Int
+                        val receivedPing: Int
+                        val packetsFlux: ArrayList<Int>
+
+                        if (ping_parameters.isChecked) {
+                            if (parameter_number_iterations.text.toString() != "" &&
+                                parameter_number_iterations.text.toString().toInt() > 0
+                            ) {
+                                isIterationValid = true
+                                val iterationCustom: Int =
+                                    parameter_number_iterations.text.toString().toInt()
+                                iterationPing = iterationCustom
+                            } else if (parameter_number_iterations.text.toString().toInt() <= 0) {
+                                isIterationValid = false
+                                parameter_number_iterations.setTextColor(resources.getColor(R.color.colorExit))
+                                Toast.makeText(
+                                    this,
+                                    "The iteration number must be positive",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                isIterationValid = true
+                                iterationPing = 4
+                            }
+
+                            //Check for ping on IP or name
+                            if (parameter_ping_ip.isChecked && !parameter_ping_name.isChecked) {
+                                isNameOrIP = true
+                                ping_input.inputType = InputType.TYPE_CLASS_DATETIME
+                            } else if (parameter_ping_ip.isChecked && parameter_ping_name.isChecked) {
+                                isNameOrIP = false
+                                Toast.makeText(
+                                    this,
+                                    "You cannot ping both an IP and a domain name",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else if (!parameter_ping_ip.isChecked && parameter_ping_name.isChecked) {
+                                isNameOrIP = true
+                                ping_input.inputType = InputType.TYPE_CLASS_TEXT
+                            } else {
+                                isNameOrIP = false
+                                Toast.makeText(
+                                    this,
+                                    "You need to chose what to ping : an IP or a name",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+
+                        if (isNameOrIP && isIterationValid) {
+                            inputIPv4 = ping_input.text.toString()
+                            packetsFlux = pingIP(inputIPv4, iterationPing)
+                            receivedPing = packetsFlux[0]
+                            lostPing = packetsFlux[1]
+                            Toast.makeText(
+                                this,
+                                "$iterationPing packets sent, $receivedPing received, $lostPing lost",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "You need to provide an IPv4 to ping !",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                exitPing()
+            } else {
+                isPingFuncOn = false
+                ping_input.visibility = View.GONE
+                ping_parameters.visibility = View.GONE
+                ping_results.visibility = View.GONE
+                parameter_ping_ip.visibility = View.GONE
+                parameter_ping_name.visibility = View.GONE
+                parameter_number_iterations.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun pingParametersToggle() {
+        ping_parameters.setOnClickListener {
+            if (ping_parameters.isChecked) {
+                parameter_ping_ip.visibility = View.VISIBLE
+                parameter_ping_name.visibility = View.VISIBLE
+                parameter_number_iterations.visibility = View.VISIBLE
+            } else {
+                parameter_ping_ip.visibility = View.GONE
+                parameter_ping_name.visibility = View.GONE
+                parameter_number_iterations.visibility = View.GONE
+                parameter_number_iterations.setTextColor(resources.getColor(R.color.colorTextMain))
+                parameter_number_iterations.setText("")
+            }
+        }
+    }
+
+    private fun exitPing() {
+        exit_ping.setOnClickListener {
+            ping_input.visibility = View.GONE
+            ping_parameters.visibility = View.GONE
+            ping_results.visibility = View.GONE
+            parameter_ping_ip.visibility = View.GONE
+            parameter_ping_name.visibility = View.GONE
+            parameter_number_iterations.visibility = View.GONE
+        }
     }
 }
