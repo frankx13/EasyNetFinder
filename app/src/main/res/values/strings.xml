@@ -16,4 +16,5 @@
     <string name="scan_wifis">Scan wifi networks</string>
     <string name="title_activity_scan_wifi">ScanWifiActivity</string>
     <string name="scan_wifi">Scan WiFi</string>
+    <string name="back">Back</string>
 </resources>

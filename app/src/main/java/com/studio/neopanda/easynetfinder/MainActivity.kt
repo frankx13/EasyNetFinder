@@ -2,23 +2,23 @@ package com.studio.neopanda.easynetfinder
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
-import android.content.BroadcastReceiver
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.DhcpInfo
-import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.StrictMode
 import android.text.format.Formatter.formatIpAddress
-import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.Inet4Address
 import java.net.InetAddress
@@ -33,24 +33,14 @@ class MainActivity : AppCompatActivity() {
     private var isNetInfoOn: Boolean = false
     private var isPingFuncOn: Boolean = false
     private var inputIPv4: String = ""
-
-    var resultList = ArrayList<ScanResult>()
-    lateinit var wifiManager: WifiManager
-
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(contxt: Context?, intent: Intent?) {
-            resultList = wifiManager.scanResults as ArrayList<ScanResult>
-            Log.d("TESTING", "onReceive Called")
-        }
-    }
+    private val FINE_LOCATION_REQUEST = 101
+    private val CAMERA_REQUEST = 102
 
     @SuppressLint("SetTextI18n")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        wifiManager = this.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
         //Allow use and fetch of network data on the current device
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
@@ -167,13 +157,82 @@ class MainActivity : AppCompatActivity() {
         }
 
         scan_wifi_btn.setOnClickListener {
-            wifiScan()
+            checkForPermissions(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                "location",
+                FINE_LOCATION_REQUEST
+            )
         }
 
         //TODO: VPN CASE
         //TODO: TRACERT FUNCTIONALITY
-        //TODO: SCAN THE WIFI NETWORK
         //TODO: IMPLEMENT NETWORK THREAD
+    }
+
+    private fun checkForPermissions(permission: String, name: String, requestCode: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    permission
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    Toast.makeText(
+                        applicationContext,
+                        "$name permission granted",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    wifiScan()
+                }
+                shouldShowRequestPermissionRationale(permission) -> showDialog(
+                    permission,
+                    name,
+                    requestCode
+                )
+
+                else -> ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        fun innerCheck(name: String) {
+            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(applicationContext, "$name permission refused", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                Toast.makeText(applicationContext, "$name permission granted", Toast.LENGTH_SHORT)
+                    .show()
+                wifiScan()
+            }
+        }
+
+        when (requestCode) {
+            FINE_LOCATION_REQUEST -> innerCheck("location")
+            CAMERA_REQUEST -> innerCheck("camera")
+        }
+    }
+
+    private fun showDialog(permission: String, name: String, requestCode: Int) {
+        val builder = AlertDialog.Builder(this)
+
+        builder.apply {
+            setMessage("Permission to access your $name is required to use this app")
+            setTitle("Permission required")
+            setPositiveButton("OK") { dialog, which ->
+                ActivityCompat.requestPermissions(
+                    this@MainActivity,
+                    arrayOf(permission),
+                    requestCode
+                )
+            }
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun checkTypeConnection(): Int {
@@ -333,23 +392,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun wifiScan() {
-        startScanning()
-        Log.e("List Networks", resultList.toString())
-        Toast.makeText(this, "There are ${resultList.size} networks available", Toast.LENGTH_LONG)
-            .show()
-    }
-
-    private fun startScanning() {
-        registerReceiver(broadcastReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
-
-        Handler().postDelayed({
-            stopScanning()
-        }, 10000)
-    }
-
-    private fun stopScanning() {
-        unregisterReceiver(broadcastReceiver)
-
-        Log.d("TESTING", "Unregistering")
+        val intent = Intent(this, WifiScannerActivity::class.java)
+        startActivity(intent)
     }
 }
