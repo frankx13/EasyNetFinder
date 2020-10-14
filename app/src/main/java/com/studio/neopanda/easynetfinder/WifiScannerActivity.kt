@@ -1,21 +1,22 @@
 package com.studio.neopanda.easynetfinder
 
+import android.R.attr.key
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.ScanResult
+import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_wifi_scanner.*
-import java.security.Permission
 import java.util.*
+
 
 class WifiScannerActivity : AppCompatActivity() {
 
@@ -54,6 +55,8 @@ class WifiScannerActivity : AppCompatActivity() {
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayList)
         wifiList.adapter = adapter
         scanWifi()
+
+
     }
 
     private fun scanWifi() {
@@ -62,6 +65,49 @@ class WifiScannerActivity : AppCompatActivity() {
         registerReceiver(wifiReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
         wifiManager.startScan()
         Toast.makeText(this, "Scanning Wifi...", Toast.LENGTH_SHORT).show()
+        connectToWifi()
+    }
+
+    private fun connectToWifi() {
+        wifiList.setOnItemClickListener { parent, view, position, id ->
+            val alertDialogBuilder = AlertDialog.Builder(this)
+            alertDialogBuilder.setTitle("Wifi Password")
+            alertDialogBuilder.setMessage("Please enter this Wifi password : ")
+
+            // Set up the input
+            var input_password = ""
+            val passwordInput = EditText(this)
+            passwordInput.inputType =
+                InputType.TYPE_CLASS_TEXT; InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+            alertDialogBuilder.setView(passwordInput)
+
+            // Set up the buttons
+            alertDialogBuilder.setPositiveButton(
+                "Enter"
+            ) { dialog, which ->
+                input_password = passwordInput.text.toString()
+            }
+
+            alertDialogBuilder.setNegativeButton(
+                "Cancel"
+            ) { dialog, which ->
+                dialog.cancel()
+            }
+            alertDialogBuilder.show()
+
+            val ssid = resultList[position].SSID
+
+            val wifiConfig = WifiConfiguration()
+            wifiConfig.SSID = String.format("\"%s\"", ssid)
+            wifiConfig.preSharedKey = String.format("\"%s\"", input_password)
+
+            //remember id
+            val netId = wifiManager.addNetwork(wifiConfig)
+            wifiManager.disconnect()
+            wifiManager.enableNetwork(netId, true)
+            wifiManager.reconnect()
+        }
     }
 
     private val wifiReceiver = object : BroadcastReceiver() {
